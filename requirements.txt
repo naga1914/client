@@ -3,3 +3,4 @@ gunicorn
 whitenoise
 mysqlclient
 psycopg2-binary
+dj-database-url
