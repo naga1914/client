@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load static %}
+
+<link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+
+<title>BidBuddy - Trial Version</title>
+{% load static %}
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+}
+
+.container {
+
+    width: 80%;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+    position: relative;
+    overflow: hidden;
+
+    background: rgba(255,255,255,0.85);
+}
+
+.container::before {
+
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-size: cover;
+    background-position: center;
+
+    opacity: 0.60;
+
+    z-index: 0;
+}
+
+.container > * {
+
+    position: relative;
+    z-index: 1;
+}
+
+h1 {
+
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.upload-btn {
+
+    padding: 12px 24px;
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.summary-box {
+
+    margin-top: 40px;
+    padding: 20px;
+
+    background: rgba(255,255,255,0.35);
+
+    border-radius: 10px;
+
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>
+        BidBuddy
+        <span style="font-size:0.45em;color:#c62828;">
+            Trial Version
+        </span>
+    </h1>
+
+    <form id="uploadForm">
+
+        <input type="file" name="TenderFile" required>
+
+        <br><br>
+
+        <button type="submit" class="upload-btn">
+
+            Upload Tender
+
+        </button>
+
+    </form>
+
+    <div class="summary-box">
+
+        <h2>Tender Summary</h2>
+
+        <div class="summary-box">
+
+            <h2>Summary</h2>
+
+            <div id="summary">
+                Waiting for upload...
+            </div>
+
+        </div>
+
+        <div class="summary-box">
+
+            <h2>Project Classification</h2>
+
+            <div id="classification">
+                Waiting for processing...
+            </div>
+
+        </div>
+
+        <div class="summary-box">
+
+            <h2>Compliance Requirements</h2>
+
+            <div id="compliance">
+                Waiting for processing...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let currentJobId = null;
+
+// -------------------------------------
+// UPLOAD FORM
+// -------------------------------------
+
+document.getElementById("uploadForm")
+.addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    document.getElementById("summary")
+    .innerHTML = "Processing started...";
+
+    const formData = new FormData(this);
+
+    const response = await fetch('/upload', {
+
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await response.json();
+
+    currentJobId = data.job_id;
+
+    startPolling();
+});
+
+// -------------------------------------
+// POLLING
+// -------------------------------------
+
+function startPolling() {
+
+    const interval = setInterval(async () => {
+
+        const response = await fetch(
+            `/check_summary/${currentJobId}`
+        );
+
+        const data = await response.json();
+
+        if (data.ready) {
+
+            document.getElementById("summary")
+            .innerHTML = data.summary;
+
+            document.getElementById("classification")
+            .innerHTML = data.classification;
+
+            document.getElementById("compliance")
+            .innerHTML = data.compliance;
+
+            clearInterval(interval);
+        }
+
+        else {
+
+            document.getElementById("summary")
+            .innerHTML =
+                "Still processing...";
+        }
+
+    }, 5000);
+}
+
+</script>
+
+</body>
+</html>
