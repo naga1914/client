@@ -1,0 +1,7 @@
+Django
+python-decouple
+dj-database-url
+mysqlclient
+psycopg2-binary
+gunicorn
+whitenoise
