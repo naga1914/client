@@ -228,6 +228,7 @@ def get_compliance_pipe():
 # UPLOAD FILE
 # ------------------------------------
 def upload_file(request):
+    print("PROCESS PDF STARTED")
 
     if request.method != "POST":
         return JsonResponse({"error": "POST required"})
@@ -240,6 +241,7 @@ def upload_file(request):
     job_id = str(uuid.uuid4())
 
     pdf_path = os.path.join(UPLOAD_FOLDER, f"{job_id}.pdf")
+    print("UPLOAD RECEIVED")
 
     with open(pdf_path, "wb+") as destination:
         for chunk in file.chunks():
@@ -248,12 +250,7 @@ def upload_file(request):
     print("Uploaded File:", file.name)
     print("Saved Path:", pdf_path)
 
-    thread = threading.Thread(
-        target=process_pdf,
-        args=(job_id, pdf_path)
-    )
-    thread.daemon = True
-    thread.start()
+    process_pdf(job_id, pdf_path)
 
     return JsonResponse({
         "status": "processing",
