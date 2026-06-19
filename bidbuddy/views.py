@@ -279,7 +279,30 @@ def process_pdf(job_id, pdf_path):
         print("STEP 2: Converting PDF")
         print("Before convert_from_path")
 
-        pages = convert_from_path(pdf_path, poppler_path=POPPLER_PATH)
+        import subprocess
+
+        try:
+            result = subprocess.run(
+            ["pdftoppm", "-v"],
+            capture_output=True,
+            text=True
+           )
+
+            print("POPPLER CHECK")
+            print(result.stdout)
+            print(result.stderr)
+
+        except Exception as e:
+            print("POPPLER ERROR:", str(e))
+
+        if platform.system() == "Windows":
+           pages = convert_from_path(
+           pdf_path,
+           poppler_path=POPPLER_PATH
+        )
+        else:
+            pages = convert_from_path(pdf_path)
+
         print("After convert_from_path")
 
 
