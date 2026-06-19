@@ -266,6 +266,10 @@ def upload_file(request):
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
 
+    print("Running on:", platform.system())
+    print("Tesseract:", pytesseract.pytesseract.tesseract_cmd)
+    print("Poppler:", POPPLER_PATH)
+
     try:
         print("STEP 1: Starting PDF Processing")
 
@@ -273,7 +277,11 @@ def process_pdf(job_id, pdf_path):
         print("PDF Path:", pdf_path)
 
         print("STEP 2: Converting PDF")
+        print("Before convert_from_path")
+
         pages = convert_from_path(pdf_path, poppler_path=POPPLER_PATH)
+        print("After convert_from_path")
+
 
         print("STEP 3: PDF Converted")
         pages = pages[:3]
@@ -371,6 +379,16 @@ Text:
 # CHECK STATUS
 # ------------------------------------
 def check_summary(request, job_id):
+
+    print("Checking job:", job_id)
+
+    summary_path = os.path.join(
+        SUMMARY_FOLDER,
+        f"{job_id}.txt"
+    )
+
+    print("Summary path:", summary_path)
+    print("Exists:", os.path.exists(summary_path))
 
     summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
 

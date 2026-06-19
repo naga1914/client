@@ -162,23 +162,48 @@ document.getElementById("uploadForm")
 
     e.preventDefault();
 
-    document.getElementById("summary")
-    .innerHTML = "Processing started...";
+    document.getElementById("summary").innerHTML =
+        "Processing started...";
+
+    document.getElementById("classification").innerHTML =
+        "Waiting for processing...";
+
+    document.getElementById("compliance").innerHTML =
+        "Waiting for processing...";
 
     const formData = new FormData(this);
 
-    const response = await fetch('/upload/', {
+    try {
 
-        method: 'POST',
-        body: formData
-    });
+        const response = await fetch('/upload/', {
+            method: 'POST',
+            body: formData
+        });
 
-    const data = await response.json();
+        if (!response.ok) {
+            throw new Error(
+                `Upload failed with status ${response.status}`
+            );
+        }
 
-    currentJobId = data.job_id;
+        const data = await response.json();
 
-    startPolling();
+        console.log("Upload response:", data);
+
+        currentJobId = data.job_id;
+
+        startPolling();
+
+    }
+    catch(error) {
+
+        console.error("Upload error:", error);
+
+        document.getElementById("summary").innerHTML =
+            "Upload failed. Check Render logs.";
+    }
 });
+
 
 // -------------------------------------
 // POLLING
@@ -188,37 +213,73 @@ function startPolling() {
 
     const interval = setInterval(async () => {
 
-        const response = await fetch(
-            `/check_summary/${currentJobId}/`
-        );
+        try {
 
-        const data = await response.json();
+            const response = await fetch(
+                `/check_summary/${currentJobId}/`
+            );
 
-        if (data.ready) {
+            if (!response.ok) {
 
-            document.getElementById("summary")
-            .innerHTML = data.summary;
+                console.error(
+                    "Polling failed:",
+                    response.status
+                );
 
-            document.getElementById("classification")
-            .innerHTML = data.classification;
+                document.getElementById("summary").innerHTML =
+                    `Server Error (${response.status})`;
 
-            document.getElementById("compliance")
-            .innerHTML = data.compliance;
+                return;
+            }
 
-            clearInterval(interval);
+            const text = await response.text();
+
+            console.log("Raw response:", text);
+
+            if (!text.trim()) {
+
+                document.getElementById("summary").innerHTML =
+                    "Empty response from server";
+
+                return;
+            }
+
+            const data = JSON.parse(text);
+
+            if (data.ready) {
+
+                document.getElementById("summary").innerHTML =
+                    data.summary || "No summary";
+
+                document.getElementById("classification").innerHTML =
+                    data.classification || "No classification";
+
+                document.getElementById("compliance").innerHTML =
+                    data.compliance || "No compliance";
+
+                clearInterval(interval);
+
+            } else {
+
+                document.getElementById("summary").innerHTML =
+                    "Still processing...";
+            }
+
         }
+        catch(error) {
 
-        else {
+            console.error(
+                "Polling exception:",
+                error
+            );
 
-            document.getElementById("summary")
-            .innerHTML =
-                "Still processing...";
+            document.getElementById("summary").innerHTML =
+                "Processing error. Check Render logs.";
         }
 
     }, 5000);
 }
 
 </script>
-
 </body>
 </html>
