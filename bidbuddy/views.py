@@ -252,6 +252,7 @@ def upload_file(request):
         target=process_pdf,
         args=(job_id, pdf_path)
     )
+    thread.daemon = True
     thread.start()
 
     return JsonResponse({
@@ -341,14 +342,24 @@ Text:
         }
 
     except Exception as e:
+
         print("ERROR OCCURRED")
+        print(str(e))
         print(traceback.format_exc())
 
-        result_data = {
-            "summary": f"Error: {str(e)}",
+        summary_path = os.path.join(
+            SUMMARY_FOLDER,
+                f"{job_id}.txt"
+        )
+
+        with open(summary_path, "w") as f:
+            json.dump({
+            "summary": str(e),
             "classification": "",
             "compliance": ""
-        }
+        }, f)
+
+        return
 
     summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
 
