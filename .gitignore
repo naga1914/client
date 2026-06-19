@@ -1,0 +1,19 @@
+# Environment
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ML heavy files
+*.pt
+*.bin
+*.dll
+
+# Django uploads
+uploads/
+summaries/
+
+# OS
+.DS_Store

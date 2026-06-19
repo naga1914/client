@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
+<link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+    <title>Compass4Tender2Contract</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Flowbite CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+</head>
+<body>
+    {% load static %}
+    <nav class="bg-white fixed w-full z-20 top-0 border-b border-gray-200">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+
+            <a href="#" class="flex items-center space-x-3">
+    <img src="{% static 'images/logo.png' %}" class="h-12" alt="Logo">
+
+    <div class="flex flex-col">
+        <span class="text-2xl font-semibold whitespace-nowrap">
+            Compass4T2C
+        </span>
+
+        <p class="text-xs tracking-wide text-gray-1200">
+            Building Infrastructure Intelligtently
+        </p>
+    </div>
+</a>
+
+            <div class="flex items-center gap-3 md:order-2">
+
+    
+    <div class="flex items-center gap-3 md:order-2">
+
+    {% if user.is_authenticated %}
+
+       <a href="{% url 'profile' %}"
+   class="w-10 h-10 flex items-center justify-center rounded-full bg-green-600 text-white font-bold uppercase">
+    {{ user.username|default:"U"|slice:":1" }}
+</a>
+
+        <a href="{% url 'logout' %}"
+           class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-4 py-2">
+            Logout
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'login' %}"
+           class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2">
+            Login
+        </a>
+
+        <a href="{% url 'register' %}"
+           class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-4 py-2">
+            Register
+        </a>
+
+    {% endif %}
+
+    <button data-collapse-toggle="navbar-sticky" type="button"
+        class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden"
+        aria-controls="navbar-sticky" aria-expanded="false">
+
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 17 14">
+            <path stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="2"
+                d="M1 1h15M1 7h15M1 13h15"/>
+        </svg>
+
+    </button>
+
+</div>
+</div>
+
+               
+
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto"
+                id="navbar-sticky">
+
+                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white">
+
+                    <li>
+                        <a href="#"
+                            class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700">
+                            Home
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#solutions"
+                            class="block py-2 px-3 text-gray-900 hover:text-blue-700">
+                            Solutions
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#founders"
+                            class="block py-2 px-3 text-gray-900 hover:text-blue-700">
+                            Founders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#contact"
+                            class="block py-2 px-3 text-gray-900 hover:text-blue-700">
+                            Contact
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+
+<li>
+    <a href="{% url 'bidbuddy_trial' %}"
+        class="block py-2 px-3 text-gray-900 hover:text-blue-700">
+        BidBuddy Trial Version
+    </a>
+</li>
+
+<li>
+    <a href="{% url 'pro_version' %}"
+        class="block py-2 px-3 text-gray-900 hover:text-blue-700">
+        BidBuddy Pro Version
+    </a>
+</li>
+
+{% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% load static %}
+<section
+    class="relative pt-26 text-center bg-cover bg-center h-screen flex flex-col justify-center items-center">
+
+    <video autoplay muted loop playsinline
+           class="absolute inset-0 w-full h-full object-cover -z-10">
+        <source src="{% static 'videos/bg.mp4' %}" type="video/mp4">
+    </video>
+
+    <div class="absolute inset-0"></div>
+
+    <div class="relative z-10 max-w-4xl px-8 md:px-16 text-white">
+        <h1 class="text-3xl md:text-7xl font-bold mb-8">
+            Compass4Tender2Contract
+        </h1>
+
+        <a href="#"
+           class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition duration-300">
+            Get Started
+        </a>
+    </div>
+
+</section>
+
+<section id="solutions" class="py-20 px-5 bg-slate-50">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="text-center mb-14">
+
+      <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mt-3 mb-4">
+            Solutions
+      </h2>
+
+      <p class="text-lg text-gray-600 max-w-6xl mx-auto leading-relaxed">
+        We provide comprehensive software solutions, end-to-end support for project management and commercial advisory services for tendering, contract management, contract administration and project execution.
+
+Compass - Tender2Contract Solutions will ensure that your bids are competitive and compliant with tender clauses and conditions.
+
+Our services span every stage of the tendering and contract lifecycle management of construction, EPC and industrial projects – buildings & factories, highways, roads, oil & gas, power & renewables including solar PV, solar thermal and wind farms sectors.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        🖥️
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Client Portal Setup & Management
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Setup, configure, and manage client tender portals to streamline bid submissions and project workflows.
+    </p>
+</div>
+
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+          🔍
+        </div>
+        <h3 class="text-xl font-semibold text-slate-900 mb-3">
+                  Curated Tender Identification
+        </h3>
+        <p class="text-gray-600 leading-relaxed">
+            Identify and track relevant tender opportunities tailored to your industry and business goals.
+
+        </p>
+      </div>
+
+      <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        📑
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Tender Document Review & Extracts
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Review tender documents and extract key requirements, risks, and compliance obligations.
+    </p>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        💰
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Budget Estimation & Competitive Pricing Strategy
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Develop accurate cost estimates and competitive pricing strategies for successful bids.
+    </p>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        📊
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Bill of Quantity Preparation & Unit Rate Analysis
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Prepare detailed BOQs and perform unit rate analysis to support accurate tender pricing.
+    </p>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        ✍️
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Technical & Commercial Bid Drafting
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Create comprehensive technical and commercial bid submissions aligned with tender requirements.
+    </p>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        🤝
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        Submission & Post-Bid Support
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Assist with bid submission processes and provide support throughout post-bid activities.
+    </p>
+</div>
+
+<div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+    <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-blue-100 text-3xl mb-5">
+        🤖
+    </div>
+
+    <h3 class="text-xl font-semibold text-slate-900 mb-3">
+        AI Driven Contract, Claims & Dispute Management
+    </h3>
+
+    <p class="text-gray-600 leading-relaxed">
+        Providing AI powered customised solutions for contract administration, claims management, delay analysis, and dispute resolution to the clients in the construction industry.
+    </p>
+</div>
+</section>
+{% load static %}
+
+<section id="founders" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <!-- Title -->
+    <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">
+      Our Founders
+    </h2>
+
+    <!-- Founder 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-16">
+
+      <!-- Image -->
+      <div class="flex justify-center">
+        <img src="{% static 'images/founder2.jpeg' %}"
+             alt="Nagajyothi Ravuri"
+             class="w-72 h-85 object-cover rounded-2xl shadow-lg">
+      </div>
+
+      <!-- Text -->
+      <div>
+        <h3 class="text-2xl font-semibold text-gray-900 mb-3">
+          Nagajyothi Ravuri
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed">
+          Mr. Nagajyothi Ravuri is a Senior Project Management professional with over 25 years of experience in managing large-scale power plant projects, renewable energy projects, and Oil & Gas EPC Construction & Infrastructure contracts. He has worked with global companies like Saipem, Wood, and KBR, delivering multi-million USD EPC LSTK projects in energy sector on time and within budget. His expertise includes project execution, contract management, risk management, procurement, and strategic sourcing. He holds a B.Tech in Mechanical Engineering from Jawaharlal Nehru Technological University, Hyderabad (1992). <br> Skilled in SAP/ERP, Projects systems, e-business/IBM Maximo & implemented Lean Six Sigma methodologies in Projects/Contracts in KOC. <br>
+          Held senior roles in IPCL/Reliance Group, Lanco Solar EPC, Eni Saipem, GE Triveni, KOC, ADNOC PMC - KBR International.
+        </p>
+      </div>
+    </div>
+
+    <!-- Founder 2 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
+      <!-- Image -->
+      <div class="flex justify-center">
+        <img src="{% static 'images/founder1.jpeg' %}"
+             alt="BSR Prasad"
+             class="w-72 h-85 object-cover rounded-2xl shadow-lg">
+      </div>
+
+      <!-- Text -->
+      <div>
+        <h3 class="text-2xl font-semibold text-gray-900 mb-3">
+          BSR Prasad
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed">
+          Mr. BSR Prasad is a seasoned technologist and business leader with over two decades of experience driving innovation at the intersection of engineering and emerging technologies. <br> An M.Tech graduate from IIT Kharagpur and a B.Tech (ECE) graduate from JNTU Kakinada, Mr. Prasad began his career at DRDO, where he contributed to the development of mission-critical systems for national defense. He subsequently held senior leadership positions at leading global technology organizations, including HCL Technologies, HPE, iGate, and Infosys, successfully leading large-scale programs in Embedded Systems and Real-Time Technologies. <br>
+          As the Founder, Mr. Prasad leverages his extensive expertise in embedded systems, real-time technologies, and AI/ML adoption to create innovative solutions that address complex real-world challenges. His leadership approach combines deep-tech research and development excellence with enterprise-scale execution, enabling the successful delivery of transformative technology solutions. <br> Under his guidance, the organization is focused on delivering intelligent and future-ready technology solutions for the Infrastructure and Building Construction industries, driving digital transformation, operational efficiency, and sustainable growth.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section id="contact" class="py-20 bg-gray-50">
+
+    <div class="max-w-6xl mx-auto px-6">
+
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900">
+                Contact Us
+            </h2>
+
+            <p class="text-gray-600 mt-3">
+                We'd love to hear from you.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-10">
+
+            <!-- Left Side -->
+           {% load static %}
+
+<div class="text-center">
+
+    <img
+        src="{% static 'images/home_background.png' %}"
+        alt="Contact Us"
+        class="w-80 h-80 mx-auto mb-6"
+    >
+
+    <h3 class="text-2xl font-semibold mb-6">
+        Get In Touch
+    </h3>
+
+    <div class="space-y-4">
+        <div>
+            <p class="text-gray-600">
+                ravuricompasstenderstocontract@gmail.com
+            </p>
+        </div>
+    </div>
+
+</div>
+            <!-- Right Side -->
+           {% if messages %}
+    {% for message in messages %}
+        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+ 
+             <form method="POST">
+
+    {% csrf_token %}
+
+    <div class="mb-4">
+        <input
+            type="text"
+            name="name"
+            placeholder="Your Name"
+            required
+            class="w-full border rounded-lg p-3"
+        >
+    </div>
+
+    <div class="mb-4">
+        <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            required
+            class="w-full border rounded-lg p-3"
+        >
+    </div>
+
+    <div class="mb-4">
+        <textarea
+            name="message"
+            rows="5"
+            placeholder="Your Message"
+            required
+            class="w-full border rounded-lg p-3"
+        ></textarea>
+    </div>
+
+    <button
+        type="submit"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+    >
+        Send Message
+    </button>
+
+</form>
+
+        </div>
+
+    </div>
+</section>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+</body>
+</html>

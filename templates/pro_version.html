@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BidBuddy Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-5xl mx-auto py-16">
+
+    <h1 class="text-5xl font-bold text-center mb-10">
+        BidBuddy Pro
+    </h1>
+
+    <div class="grid md:grid-cols-3 gap-8">
+
+        <!-- Basic -->
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+            <h2 class="text-2xl font-bold">
+                Basic
+            </h2>
+
+            <p class="text-4xl font-bold my-6">
+                ₹499
+            </p>
+
+            <ul class="space-y-3">
+                <li>✓ Tender Search</li>
+                <li>✓ Tender Tracking</li>
+                <li>✓ Email Alerts</li>
+            </ul>
+
+            <a href="{% url 'pay' %}"
+               class="block text-center mt-8 bg-purple-700 text-white py-3 rounded-lg">
+                Pay with PhonePe
+            </a>
+
+        </div>
+
+        <!-- Pro -->
+
+        <div class="bg-white rounded-xl shadow-lg p-8 border-4 border-purple-600">
+
+            <h2 class="text-2xl font-bold">
+                Pro
+            </h2>
+
+            <p class="text-4xl font-bold my-6">
+                ₹999
+            </p>
+
+            <ul class="space-y-3">
+                <li>✓ AI Tender Analysis</li>
+                <li>✓ BOQ Support</li>
+                <li>✓ Pricing Suggestions</li>
+                <li>✓ Tender Alerts</li>
+            </ul>
+
+            <a href="{% url 'pay' %}"
+               class="block text-center mt-8 bg-purple-700 text-white py-3 rounded-lg">
+                Pay with PhonePe
+            </a>
+
+        </div>
+
+        <!-- Enterprise -->
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+            <h2 class="text-2xl font-bold">
+                Enterprise
+            </h2>
+
+            <p class="text-4xl font-bold my-6">
+                ₹1999
+            </p>
+
+            <ul class="space-y-3">
+                <li>✓ Everything in Pro</li>
+                <li>✓ Team Access</li>
+                <li>✓ Contract Analysis</li>
+                <li>✓ Priority Support</li>
+            </ul>
+
+            <a href="{% url 'pay' %}"
+               class="block text-center mt-8 bg-purple-700 text-white py-3 rounded-lg">
+                Pay with PhonePe
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Successful</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-md mx-auto mt-20 bg-white p-8 rounded-lg shadow text-center">
+
+    <!-- Success Icon -->
+    <div class="text-5xl mb-4">
+        ✅
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl font-bold text-green-600 mb-4">
+        Payment Successful
+    </h1>
+
+    <!-- Message -->
+    <p class="text-gray-600 mb-6">
+        Thank you for purchasing <span class="font-semibold">BidBuddy Pro</span>.
+        Your payment has been successfully processed.
+    </p>
+
+    <!-- Button -->
+    <a href="{% url 'home' %}"
+       class="inline-block bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-lg transition">
+        Back to Home
+    </a>
+
+</div>
+
+</body>
+</html>

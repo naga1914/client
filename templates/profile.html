@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+
+<link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+    <title>Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
+
+        <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+
+        <div class="text-gray-700 space-y-2">
+            <p><span class="font-semibold">Username:</span> {{ user.username }}</p>
+            <p><span class="font-semibold">Email:</span> {{ user.email }}</p>
+        </div>
+
+        <a href="{% url 'logout' %}"
+           class="mt-6 inline-block w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600">
+            Logout
+        </a>
+
+    </div>
+
+</body>
+</html>
