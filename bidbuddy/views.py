@@ -263,141 +263,17 @@ def upload_file(request):
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
 
-    print("Running on:", platform.system())
-    print("Tesseract:", pytesseract.pytesseract.tesseract_cmd)
-    print("Poppler:", POPPLER_PATH)
+    summary_path = os.path.join(
+        SUMMARY_FOLDER,
+        f"{job_id}.txt"
+    )
 
-    try:
-        print("STEP 1: Starting PDF Processing")
-
-        print("PDF Exists:", os.path.exists(pdf_path))
-        print("PDF Path:", pdf_path)
-
-        print("STEP 2: Converting PDF")
-        print("Before convert_from_path")
-
-        import subprocess
-
-        try:
-            result = subprocess.run(
-            ["pdftoppm", "-v"],
-            capture_output=True,
-            text=True
-           )
-
-            print("POPPLER CHECK")
-            print(result.stdout)
-            print(result.stderr)
-
-        except Exception as e:
-            print("POPPLER ERROR:", str(e))
-
-        if platform.system() == "Windows":
-           pages = convert_from_path(
-           pdf_path,
-           poppler_path=POPPLER_PATH
-        )
-        else:
-            pages = convert_from_path(pdf_path)
-
-        print("After convert_from_path")
-
-
-        print("STEP 3: PDF Converted")
-        pages = pages[:3]
-
-        extracted_text = ""
-
-        print("STEP 4: Starting OCR")
-        for page in pages:
-            text = pytesseract.image_to_string(page)
-            extracted_text += text + "\n"
-
-        print("STEP 5: OCR Completed")
-
-        clean_text = re.sub(r'\s+', ' ', extracted_text).strip()
-        extracted_text = clean_text[:4000]
-
-        print("STEP 6: Loading Summarizer")
-
-        summary_result = get_summarizer()(
-            extracted_text,
-            max_length=120,
-            min_length=30,
-            do_sample=False
-        )
-
-        print("STEP 7: Summary Completed")
-
-        classification_result = get_classifier()(
-            extracted_text,
-            candidate_labels=["buildings", "roads", "dams"]
-        )
-
-        print("STEP 8: Classification Completed")
-
-        prompt = f"""
-You are a compliance extraction system.
-
-Task:
-Extract ONLY compliance requirements from the tender text.
-
-Rules:
-- Return bullet points only
-- Do NOT explain anything
-- If nothing exists, return: No compliance requirements found
-
-Text:
-{extracted_text}
-"""
-
-        print("STEP 9: Compliance Started")
-
-        compliance_result = get_compliance_pipe()(
-            prompt,
-            max_new_tokens=150,
-            do_sample=False
-        )
-
-        print("STEP 10: Compliance Completed")
-
-        compliance_text = compliance_result[0]["generated_text"]
-
-        result_data = {
-            "summary": summary_result[0]["summary_text"],
-            "classification": f"Top Category: {classification_result['labels'][0]}",
-            "compliance": compliance_text
-        }
-
-    except Exception as e:
-
-        print("ERROR OCCURRED")
-        print(str(e))
-        print(traceback.format_exc())
-
-        summary_path = os.path.join(
-            SUMMARY_FOLDER,
-                f"{job_id}.txt"
-        )
-
-        with open(summary_path, "w") as f:
-            json.dump({
-            "summary": str(e),
-            "classification": "",
-            "compliance": ""
+    with open(summary_path, "w") as f:
+        json.dump({
+            "summary": "TEST",
+            "classification": "TEST",
+            "compliance": "TEST"
         }, f)
-
-        return
-
-    summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
-
-    with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(result_data, f)
-
-
-# ------------------------------------
-# CHECK STATUS
-# ------------------------------------
 def check_summary(request, job_id):
 
     print("Checking job:", job_id)
