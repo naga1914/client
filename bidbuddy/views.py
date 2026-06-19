@@ -262,18 +262,24 @@ def upload_file(request):
 # PROCESS PDF
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
+    try:
+        pages = convert_from_path(pdf_path)
 
-    summary_path = os.path.join(
-        SUMMARY_FOLDER,
-        f"{job_id}.txt"
-    )
+        result_data = {
+            "summary": f"Pages: {len(pages)}",
+            "classification": "OK",
+            "compliance": "OK"
+        }
 
-    with open(summary_path, "w") as f:
-        json.dump({
-            "summary": "TEST",
-            "classification": "TEST",
-            "compliance": "TEST"
-        }, f)
+    except Exception as e:
+        result_data = {
+            "summary": str(e),
+            "classification": "",
+            "compliance": ""
+        }
+
+    with open(os.path.join(SUMMARY_FOLDER, f"{job_id}.txt"), "w") as f:
+        json.dump(result_data, f)
 def check_summary(request, job_id):
 
     print("Checking job:", job_id)
