@@ -19,8 +19,6 @@ import threading
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.conf import settings
-
-from transformers import pipeline
 from functools import lru_cache
 from pdf2image import convert_from_path
 import pytesseract
@@ -194,12 +192,37 @@ def free_trail(request):
 # ------------------------------------
 
 # ------------------------------------
-# GLOBAL MODELS (LOAD ONCE)
+# LOAD MODELS ONLY WHEN NEEDED
 # ------------------------------------
-summarizer = pipeline("summarization", model="Falconsai/text_summarization")
-classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-compliance_pipe = pipeline("text2text-generation", model="google/flan-t5-small")
 
+@lru_cache(maxsize=1)
+def get_summarizer():
+    from transformers import pipeline
+
+    return pipeline(
+        "summarization",
+        model="Falconsai/text_summarization"
+    )
+
+
+@lru_cache(maxsize=1)
+def get_classifier():
+    from transformers import pipeline
+
+    return pipeline(
+        "zero-shot-classification",
+        model="facebook/bart-large-mnli"
+    )
+
+
+@lru_cache(maxsize=1)
+def get_compliance_pipe():
+    from transformers import pipeline
+
+    return pipeline(
+        "text2text-generation",
+        model="google/flan-t5-small"
+    )
 
 # ------------------------------------
 # UPLOAD FILE
@@ -243,50 +266,47 @@ def upload_file(request):
 def process_pdf(job_id, pdf_path):
 
     try:
+        print("STEP 1: Starting PDF Processing")
+
         print("PDF Exists:", os.path.exists(pdf_path))
         print("PDF Path:", pdf_path)
 
-        # Convert PDF → images
+        print("STEP 2: Converting PDF")
         pages = convert_from_path(pdf_path, poppler_path=POPPLER_PATH)
+
+        print("STEP 3: PDF Converted")
         pages = pages[:3]
 
         extracted_text = ""
 
+        print("STEP 4: Starting OCR")
         for page in pages:
             text = pytesseract.image_to_string(page)
             extracted_text += text + "\n"
 
-        # Clean text
+        print("STEP 5: OCR Completed")
+
         clean_text = re.sub(r'\s+', ' ', extracted_text).strip()
         extracted_text = clean_text[:4000]
 
-        # ------------------------------------
-        # SUMMARY
-        # ------------------------------------
-        summary_result = summarizer(
+        print("STEP 6: Loading Summarizer")
+
+        summary_result = get_summarizer()(
             extracted_text,
             max_length=120,
             min_length=30,
             do_sample=False
         )
-        final_summary = summary_result[0]["summary_text"]
 
-        # ------------------------------------
-        # CLASSIFICATION
-        # ------------------------------------
-        classification_result = classifier(
+        print("STEP 7: Summary Completed")
+
+        classification_result = get_classifier()(
             extracted_text,
             candidate_labels=["buildings", "roads", "dams"]
         )
 
-        classification_text = (
-            f"Top Category: {classification_result['labels'][0]}\n"
-            f"Confidence: {round(classification_result['scores'][0] * 100, 2)}%"
-        )
+        print("STEP 8: Classification Completed")
 
-        # ------------------------------------
-        # COMPLIANCE EXTRACTION
-        # ------------------------------------
         prompt = f"""
 You are a compliance extraction system.
 
@@ -302,22 +322,21 @@ Text:
 {extracted_text}
 """
 
-        compliance_result = compliance_pipe(
+        print("STEP 9: Compliance Started")
+
+        compliance_result = get_compliance_pipe()(
             prompt,
             max_new_tokens=150,
             do_sample=False
         )
 
+        print("STEP 10: Compliance Completed")
+
         compliance_text = compliance_result[0]["generated_text"]
 
-        print("COMPLIANCE OUTPUT:\n", compliance_text)
-
-        # ------------------------------------
-        # FINAL DATA
-        # ------------------------------------
         result_data = {
-            "summary": final_summary,
-            "classification": classification_text,
+            "summary": summary_result[0]["summary_text"],
+            "classification": f"Top Category: {classification_result['labels'][0]}",
             "compliance": compliance_text
         }
 
@@ -331,7 +350,6 @@ Text:
             "compliance": ""
         }
 
-    # Save result
     summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
 
     with open(summary_path, "w", encoding="utf-8") as f:
