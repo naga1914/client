@@ -20,7 +20,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.conf import settings
 
-from transformers import pipeline
 from functools import lru_cache
 from pdf2image import convert_from_path
 import pytesseract
