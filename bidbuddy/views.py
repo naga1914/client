@@ -196,10 +196,32 @@ def free_trail(request):
 # ------------------------------------
 # GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
-summarizer = pipeline("summarization", model="Falconsai/text_summarization")
-classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-compliance_pipe = pipeline("text2text-generation", model="google/flan-t5-small")
 
+summarizer = None
+classifier = None
+compliance_pipe = None
+
+
+def load_models():
+    global summarizer, classifier, compliance_pipe
+
+    if summarizer is None:
+        summarizer = pipeline(
+            "summarization",
+            model="Falconsai/text_summarization"
+        )
+
+    if classifier is None:
+        classifier = pipeline(
+            "zero-shot-classification",
+            model="facebook/bart-large-mnli"
+        )
+
+    if compliance_pipe is None:
+        compliance_pipe = pipeline(
+            "text2text-generation",
+            model="google/flan-t5-small"
+        )
 
 # ------------------------------------
 # UPLOAD FILE
