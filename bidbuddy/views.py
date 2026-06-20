@@ -196,6 +196,7 @@ def free_trail(request):
 # ------------------------------------
 # GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
+from transformers import pipeline
 summarizer = None
 classifier = None
 compliance_pipe = None
@@ -203,18 +204,16 @@ compliance_pipe = None
 def load_models():
     global summarizer, classifier, compliance_pipe
 
-    from transformers import pipeline
-
     if summarizer is None:
         summarizer = pipeline(
             "summarization",
-            model="Falconsai/text_summarization"
+            model="sshleifer/distilbart-cnn-12-6"
         )
 
     if classifier is None:
         classifier = pipeline(
             "zero-shot-classification",
-            model="facebook/bart-large-mnli"
+            model="valhalla/distilbart-mnli-12-1"
         )
 
     if compliance_pipe is None:
