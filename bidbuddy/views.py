@@ -26,7 +26,6 @@ import pytesseract
 import platform
 import traceback
 import re
-from .tasks import process_pdf_task
 
 
 
@@ -246,8 +245,7 @@ def upload_file(request):
     print("Uploaded File:", file.name)
     print("Saved Path:", pdf_path)
 
-
-    process_pdf_task.delay(job_id, pdf_path)
+    process_pdf(job_id, pdf_path)
     return JsonResponse({
         "status": "processing",
         "job_id": job_id

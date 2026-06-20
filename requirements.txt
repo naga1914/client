@@ -18,3 +18,5 @@ pytesseract
 pillow 
 accelerate 
 sentencepiece
+celery  
+redis 
