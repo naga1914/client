@@ -19,6 +19,8 @@ import threading
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.conf import settings
+
+from transformers import pipeline
 from functools import lru_cache
 from pdf2image import convert_from_path
 import pytesseract
@@ -192,43 +194,17 @@ def free_trail(request):
 # ------------------------------------
 
 # ------------------------------------
-# LOAD MODELS ONLY WHEN NEEDED
+# GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
+summarizer = pipeline("summarization", model="Falconsai/text_summarization")
+classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+compliance_pipe = pipeline("text2text-generation", model="google/flan-t5-small")
 
-@lru_cache(maxsize=1)
-def get_summarizer():
-    from transformers import pipeline
-
-    return pipeline(
-        "summarization",
-        model="Falconsai/text_summarization"
-    )
-
-
-@lru_cache(maxsize=1)
-def get_classifier():
-    from transformers import pipeline
-
-    return pipeline(
-        "zero-shot-classification",
-        model="facebook/bart-large-mnli"
-    )
-
-
-@lru_cache(maxsize=1)
-def get_compliance_pipe():
-    from transformers import pipeline
-
-    return pipeline(
-        "text2text-generation",
-        model="google/flan-t5-small"
-    )
 
 # ------------------------------------
 # UPLOAD FILE
 # ------------------------------------
 def upload_file(request):
-    print("PROCESS PDF STARTED")
 
     if request.method != "POST":
         return JsonResponse({"error": "POST required"})
@@ -241,7 +217,6 @@ def upload_file(request):
     job_id = str(uuid.uuid4())
 
     pdf_path = os.path.join(UPLOAD_FOLDER, f"{job_id}.pdf")
-    print("UPLOAD RECEIVED")
 
     with open(pdf_path, "wb+") as destination:
         for chunk in file.chunks():
@@ -250,7 +225,11 @@ def upload_file(request):
     print("Uploaded File:", file.name)
     print("Saved Path:", pdf_path)
 
-    process_pdf(job_id, pdf_path)
+    thread = threading.Thread(
+        target=process_pdf,
+        args=(job_id, pdf_path)
+    )
+    thread.start()
 
     return JsonResponse({
         "status": "processing",
@@ -262,35 +241,107 @@ def upload_file(request):
 # PROCESS PDF
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
-    try:
-        pages = convert_from_path(pdf_path)
 
+    try:
+        print("PDF Exists:", os.path.exists(pdf_path))
+        print("PDF Path:", pdf_path)
+
+        # Convert PDF → images
+        pages = convert_from_path(pdf_path, poppler_path=POPPLER_PATH)
+        pages = pages[:3]
+
+        extracted_text = ""
+
+        for page in pages:
+            text = pytesseract.image_to_string(page)
+            extracted_text += text + "\n"
+
+        # Clean text
+        clean_text = re.sub(r'\s+', ' ', extracted_text).strip()
+        extracted_text = clean_text[:4000]
+
+        # ------------------------------------
+        # SUMMARY
+        # ------------------------------------
+        summary_result = summarizer(
+            extracted_text,
+            max_length=120,
+            min_length=30,
+            do_sample=False
+        )
+        final_summary = summary_result[0]["summary_text"]
+
+        # ------------------------------------
+        # CLASSIFICATION
+        # ------------------------------------
+        classification_result = classifier(
+            extracted_text,
+            candidate_labels=["buildings", "roads", "dams"]
+        )
+
+        classification_text = (
+            f"Top Category: {classification_result['labels'][0]}\n"
+            f"Confidence: {round(classification_result['scores'][0] * 100, 2)}%"
+        )
+
+        # ------------------------------------
+        # COMPLIANCE EXTRACTION
+        # ------------------------------------
+        prompt = f"""
+You are a compliance extraction system.
+
+Task:
+Extract ONLY compliance requirements from the tender text.
+
+Rules:
+- Return bullet points only
+- Do NOT explain anything
+- If nothing exists, return: No compliance requirements found
+
+Text:
+{extracted_text}
+"""
+
+        compliance_result = compliance_pipe(
+            prompt,
+            max_new_tokens=150,
+            do_sample=False
+        )
+
+        compliance_text = compliance_result[0]["generated_text"]
+
+        print("COMPLIANCE OUTPUT:\n", compliance_text)
+
+        # ------------------------------------
+        # FINAL DATA
+        # ------------------------------------
         result_data = {
-            "summary": f"Pages: {len(pages)}",
-            "classification": "OK",
-            "compliance": "OK"
+            "summary": final_summary,
+            "classification": classification_text,
+            "compliance": compliance_text
         }
 
     except Exception as e:
+        print("ERROR OCCURRED")
+        print(traceback.format_exc())
+
         result_data = {
-            "summary": str(e),
+            "summary": f"Error: {str(e)}",
             "classification": "",
             "compliance": ""
         }
 
-    with open(os.path.join(SUMMARY_FOLDER, f"{job_id}.txt"), "w") as f:
+    # Save result
+    summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
+
+    with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(result_data, f)
+
+
+# ------------------------------------
+# CHECK STATUS
+# ------------------------------------
 def check_summary(request, job_id):
-
-    print("Checking job:", job_id)
-
-    summary_path = os.path.join(
-        SUMMARY_FOLDER,
-        f"{job_id}.txt"
-    )
-
-    print("Summary path:", summary_path)
-    print("Exists:", os.path.exists(summary_path))
 
     summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
 
