@@ -96,7 +96,7 @@ h1 {
         </span>
     </h1>
 
-    <form id="uploadForm">
+    <form id="uploadForm" enctype="multipart/form-data">
             {% csrf_token %}
 
         <input type="file" name="TenderFile" required>
