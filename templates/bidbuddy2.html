@@ -1,285 +1,524 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+    <title>compass4Tender2Contract - Trial Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-{% load static %}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-<link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
 
-<title>compass4Tender2Contract - Trial Version</title>
-{% load static %}
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f9;
-}
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
 
-.container {
+        .subtitle {
+            text-align: center;
+            color: #c62828;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
 
-    width: 80%;
-    margin: 40px auto;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .upload-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px dashed #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
 
-    position: relative;
-    overflow: hidden;
+        .upload-section:hover {
+            border-color: #764ba2;
+            background: #f0f1ff;
+        }
 
-    background: rgba(255,255,255,0.85);
-}
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 10px 0;
+        }
 
-.container::before {
+        .file-input-wrapper input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
 
-    content: "";
-    position: absolute;
-    inset: 0;
+        .file-input-wrapper input[type="file"]:hover {
+            border-color: #667eea;
+        }
 
-    background-size: cover;
-    background-position: center;
+        .upload-btn {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 15px;
+        }
 
-    opacity: 0.60;
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
 
-    z-index: 0;
-}
+        .upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-.container > * {
+        .status-message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+        }
 
-    position: relative;
-    z-index: 1;
-}
+        .status-message.show {
+            display: block;
+        }
 
-h1 {
+        .status-message.info {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+        }
 
-    text-align: center;
-    margin-bottom: 30px;
-}
+        .status-message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
 
-.upload-btn {
+        .status-message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #81c784;
+        }
 
-    padding: 12px 24px;
-    background-color: #16a34a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
+        .results-section {
+            margin-top: 30px;
+        }
 
-.summary-box {
+        .result-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
 
-    margin-top: 40px;
-    padding: 20px;
+        .result-box:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
 
-    background: rgba(255,255,255,0.35);
+        .result-box h3 {
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    border-radius: 10px;
+        .result-box h3 .badge {
+            font-size: 0.7rem;
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
 
-    border: 1px solid rgba(255,255,255,0.4);
-}
+        .result-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            min-height: 30px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
 
-</style>
+        .result-content.loading {
+            color: #999;
+            font-style: italic;
+        }
 
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .upload-section {
+                padding: 20px;
+            }
+
+            .upload-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <h1>📄 compass4Tender2Contract</h1>
+    <div class="subtitle">⚡ Trial Version - Upload & Analyze Tenders</div>
 
-    <h1>
-        compass4Tender2Contract
-        <span style="font-size:0.45em;color:#c62828;">
-            Trial Version
-        </span>
-    </h1>
-
-    <form id="uploadForm">
+    <div class="upload-section">
+        <form id="uploadForm" enctype="multipart/form-data">
             {% csrf_token %}
-
-        <input type="file" name="TenderFile" required>
-
-        <br><br>
-
-        <button type="submit" class="upload-btn">
-
-            Upload Tender
-
-        </button>
-
-    </form>
-
-    <div class="summary-box">
-
-        <h2>Tender Summary</h2>
-
-        <div class="summary-box">
-
-            <h2>Summary</h2>
-
-            <div id="summary">
-                Waiting for upload...
+            <div class="file-input-wrapper">
+                <input type="file" name="TenderFile" accept=".pdf" required id="fileInput">
             </div>
+            <br>
+            <button type="submit" class="upload-btn" id="uploadBtn">
+                📤 Upload & Analyze Tender
+            </button>
+        </form>
 
+        <div id="statusMessage" class="status-message">
+            <span id="statusText"></span>
         </div>
 
-        <div class="summary-box">
-
-            <h2>Project Classification</h2>
-
-            <div id="classification">
-                Waiting for processing...
-            </div>
-
+        <div class="progress-bar" id="progressBar" style="display:none;">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
-
-        <div class="summary-box">
-
-            <h2>Compliance Requirements</h2>
-
-            <div id="compliance">
-                Waiting for processing...
-            </div>
-
-        </div>
-
     </div>
 
+    <div class="results-section" id="resultsSection">
+        <div class="result-box">
+            <h3>📝 Summary <span class="badge">AI Generated</span></h3>
+            <div class="result-content loading" id="summary">
+                <span class="loading-spinner"></span> Waiting for upload...
+            </div>
+        </div>
+
+        <div class="result-box">
+            <h3>🏗️ Project Classification <span class="badge">AI Generated</span></h3>
+            <div class="result-content loading" id="classification">
+                <span class="loading-spinner"></span> Waiting for processing...
+            </div>
+        </div>
+
+        <div class="result-box">
+            <h3>📋 Compliance Requirements <span class="badge">AI Generated</span></h3>
+            <div class="result-content loading" id="compliance">
+                <span class="loading-spinner"></span> Waiting for processing...
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-
 let currentJobId = null;
+let pollingInterval = null;
+let progress = 0;
 
 // -------------------------------------
 // UPLOAD FORM
 // -------------------------------------
-
-document.getElementById("uploadForm")
-.addEventListener("submit", async function(e) {
-
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    document.getElementById("summary").innerHTML =
-        "Processing started...";
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const statusText = document.getElementById('statusText');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
 
-    document.getElementById("classification").innerHTML =
-        "Waiting for processing...";
+    // Validate file
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showStatus('Please select a PDF file to upload.', 'error');
+        return;
+    }
 
-    document.getElementById("compliance").innerHTML =
-        "Waiting for processing...";
+    const file = fileInput.files[0];
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+        showStatus('Please upload a valid PDF file.', 'error');
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        showStatus('File is too large. Maximum size is 5MB.', 'error');
+        return;
+    }
+
+    // Reset UI
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = '⏳ Uploading...';
+    progress = 0;
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+    
+    // Reset results
+    document.getElementById('summary').innerHTML = '<span class="loading-spinner"></span> Uploading...';
+    document.getElementById('classification').innerHTML = '<span class="loading-spinner"></span> Waiting...';
+    document.getElementById('compliance').innerHTML = '<span class="loading-spinner"></span> Waiting...';
+    
+    showStatus('Uploading file...', 'info');
 
     const formData = new FormData(this);
 
     try {
-
         const response = await fetch('/upload/', {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
         });
 
+        // Update progress
+        progress = 50;
+        progressFill.style.width = '50%';
+
         if (!response.ok) {
-            throw new Error(
-                `Upload failed with status ${response.status}`
-            );
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Upload failed with status ${response.status}`);
         }
 
         const data = await response.json();
-
         console.log("Upload response:", data);
 
-        currentJobId = data.job_id;
+        if (data.status === 'processing' && data.job_id) {
+            currentJobId = data.job_id;
+            progress = 75;
+            progressFill.style.width = '75%';
+            showStatus('File uploaded successfully! Processing...', 'success');
+            uploadBtn.textContent = '⏳ Processing...';
+            startPolling();
+        } else {
+            throw new Error('Unexpected response from server');
+        }
 
-        startPolling();
-
-    }
-    catch(error) {
-
+    } catch (error) {
         console.error("Upload error:", error);
-
-        document.getElementById("summary").innerHTML =
-            "Upload failed. Check Render logs.";
+        showStatus(`Error: ${error.message}`, 'error');
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '📤 Upload & Analyze Tender';
+        progressBar.style.display = 'none';
+        document.getElementById('summary').innerHTML = '❌ Upload failed. Please try again.';
     }
 });
 
-
 // -------------------------------------
-// POLLING
+// POLLING FOR RESULTS
 // -------------------------------------
-
 function startPolling() {
+    let attempts = 0;
+    const maxAttempts = 40; // 40 * 2.5 seconds = 100 seconds max
+    
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
 
-    const interval = setInterval(async () => {
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+
+    pollingInterval = setInterval(async () => {
+        attempts++;
+        
+        // Update progress
+        const progressValue = Math.min(75 + (attempts / maxAttempts) * 20, 95);
+        progressFill.style.width = `${progressValue}%`;
 
         try {
-
-            const response = await fetch(
-                `/check_summary/${currentJobId}/`
-            );
-
+            const response = await fetch(`/check-summary/${currentJobId}/`);
+            
             if (!response.ok) {
-
-                console.error(
-                    "Polling failed:",
-                    response.status
-                );
-
-                document.getElementById("summary").innerHTML =
-                    `Server Error (${response.status})`;
-
-                return;
+                throw new Error(`Server responded with status ${response.status}`);
             }
 
-            const text = await response.text();
-
-            console.log("Raw response:", text);
-
-            if (!text.trim()) {
-
-                document.getElementById("summary").innerHTML =
-                    "Empty response from server";
-
-                return;
-            }
-
-            const data = JSON.parse(text);
+            const data = await response.json();
+            console.log("Polling response:", data);
 
             if (data.ready) {
-
-                document.getElementById("summary").innerHTML =
-                    data.summary || "No summary";
-
-                document.getElementById("classification").innerHTML =
-                    data.classification || "No classification";
-
-                document.getElementById("compliance").innerHTML =
-                    data.compliance || "No compliance";
-
-                clearInterval(interval);
-
-            } else {
-
-                document.getElementById("summary").innerHTML =
-                    "Still processing...";
+                // Success - display results
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                
+                progressFill.style.width = '100%';
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadBtn').textContent = '📤 Upload & Analyze Tender';
+                document.getElementById('progressBar').style.display = 'none';
+                
+                if (data.error) {
+                    showStatus(`Processing completed with error: ${data.error}`, 'error');
+                    document.getElementById('summary').innerHTML = `❌ ${data.error}`;
+                    document.getElementById('classification').innerHTML = '❌ Error';
+                    document.getElementById('compliance').innerHTML = '❌ Error';
+                } else {
+                    showStatus('✅ Processing complete!', 'success');
+                    document.getElementById('summary').innerHTML = data.summary || 'No summary available';
+                    document.getElementById('classification').innerHTML = data.classification || 'No classification available';
+                    document.getElementById('compliance').innerHTML = data.compliance || 'No compliance information available';
+                }
+                
+            } else if (attempts >= maxAttempts) {
+                // Timeout
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                showStatus('⏰ Processing timed out. Please try again with a smaller file.', 'error');
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadBtn').textContent = '📤 Upload & Analyze Tender';
+                document.getElementById('progressBar').style.display = 'none';
+                document.getElementById('summary').innerHTML = '⏰ Processing timed out';
             }
-
+            
+        } catch (error) {
+            console.error("Polling error:", error);
+            if (attempts >= maxAttempts) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                showStatus(`Error checking status: ${error.message}`, 'error');
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadBtn').textContent = '📤 Upload & Analyze Tender';
+                document.getElementById('progressBar').style.display = 'none';
+            }
         }
-        catch(error) {
-
-            console.error(
-                "Polling exception:",
-                error
-            );
-
-            document.getElementById("summary").innerHTML =
-                "Processing error. Check Render logs.";
-        }
-
-    }, 5000);
+    }, 2500); // Poll every 2.5 seconds
 }
 
+// -------------------------------------
+// HELPER FUNCTIONS
+// -------------------------------------
+function getCSRFToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='));
+    return cookieValue ? cookieValue.split('=')[1] : '';
+}
+
+function showStatus(message, type = 'info') {
+    const statusMessage = document.getElementById('statusMessage');
+    const statusText = document.getElementById('statusText');
+    
+    statusMessage.className = `status-message show ${type}`;
+    statusText.textContent = message;
+    
+    // Auto hide after 10 seconds for success messages
+    if (type === 'success') {
+        setTimeout(() => {
+            statusMessage.classList.remove('show');
+        }, 10000);
+    }
+}
+
+// Add file input validation
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = this.files[0];
+    if (file) {
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+            showStatus('Please select a PDF file.', 'error');
+            this.value = '';
+        } else if (file.size > 5 * 1024 * 1024) {
+            showStatus('File is too large. Maximum size is 5MB.', 'error');
+            this.value = '';
+        } else {
+            showStatus(`Selected: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`, 'info');
+        }
+    }
+});
+
+// Clean up polling on page unload
+window.addEventListener('beforeunload', function() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
+});
 </script>
+
 </body>
 </html>

@@ -22,9 +22,13 @@ import platform
 import traceback
 import re
 import csv
+import logging
 from functools import lru_cache
 from pdf2image import convert_from_path
 import pytesseract
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Try to import psutil for memory monitoring
 try:
@@ -62,7 +66,7 @@ if platform.system() == "Windows":
 else:
     # Linux (Render)
     pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-    POPPLER_PATH = "/usr/bin"  # or None
+    POPPLER_PATH = None  # Let system find poppler
 
 # ------------------------------------
 # MEMORY MONITORING
@@ -73,7 +77,7 @@ def check_memory():
         try:
             process = psutil.Process()
             memory_mb = process.memory_info().rss / 1024 / 1024
-            print(f"Current memory usage: {memory_mb:.2f} MB")
+            logger.info(f"Current memory usage: {memory_mb:.2f} MB")
             return memory_mb
         except:
             pass
@@ -85,54 +89,78 @@ def check_memory():
 summarizer = None
 classifier = None
 compliance_pipe = None
+models_loading = False
 
 def load_models():
     """Load AI models with memory optimization"""
-    global summarizer, classifier, compliance_pipe
-    from transformers import pipeline
+    global summarizer, classifier, compliance_pipe, models_loading
     
-    check_memory()
+    # Prevent multiple simultaneous loading attempts
+    if models_loading:
+        logger.info("Models already loading, skipping...")
+        return
+    
+    models_loading = True
     
     try:
+        from transformers import pipeline
+        
+        logger.info("Starting model loading...")
+        check_memory()
+        
         if summarizer is None:
-            print("Loading summarizer model...")
-            summarizer = pipeline(
-                "summarization",
-                model="sshleifer/distilbart-cnn-12-6",
-                device=-1,  # Force CPU
-                model_kwargs={"low_cpu_mem_usage": True}
-            )
-            gc.collect()
-            print("Summarizer loaded")
-            check_memory()
+            logger.info("Loading summarizer model...")
+            try:
+                summarizer = pipeline(
+                    "summarization",
+                    model="sshleifer/distilbart-cnn-12-6",
+                    device=-1,  # Force CPU
+                    model_kwargs={"low_cpu_mem_usage": True}
+                )
+                gc.collect()
+                logger.info("Summarizer loaded successfully")
+                check_memory()
+            except Exception as e:
+                logger.error(f"Failed to load summarizer: {str(e)}")
+                summarizer = None
 
         if classifier is None:
-            print("Loading classifier model...")
-            classifier = pipeline(
-                "zero-shot-classification",
-                model="valhalla/distilbart-mnli-12-1",
-                device=-1,
-                model_kwargs={"low_cpu_mem_usage": True}
-            )
-            gc.collect()
-            print("Classifier loaded")
-            check_memory()
+            logger.info("Loading classifier model...")
+            try:
+                classifier = pipeline(
+                    "zero-shot-classification",
+                    model="valhalla/distilbart-mnli-12-1",
+                    device=-1,
+                    model_kwargs={"low_cpu_mem_usage": True}
+                )
+                gc.collect()
+                logger.info("Classifier loaded successfully")
+                check_memory()
+            except Exception as e:
+                logger.error(f"Failed to load classifier: {str(e)}")
+                classifier = None
 
         if compliance_pipe is None:
-            print("Loading compliance model...")
-            compliance_pipe = pipeline(
-                "text2text-generation",
-                model="google/flan-t5-small",
-                device=-1,
-                model_kwargs={"low_cpu_mem_usage": True}
-            )
-            gc.collect()
-            print("Compliance model loaded")
-            check_memory()
-            
+            logger.info("Loading compliance model...")
+            try:
+                compliance_pipe = pipeline(
+                    "text2text-generation",
+                    model="google/flan-t5-small",
+                    device=-1,
+                    model_kwargs={"low_cpu_mem_usage": True}
+                )
+                gc.collect()
+                logger.info("Compliance model loaded successfully")
+                check_memory()
+            except Exception as e:
+                logger.error(f"Failed to load compliance model: {str(e)}")
+                compliance_pipe = None
+                
     except Exception as e:
-        print(f"Error loading models: {e}")
-        traceback.print_exc()
+        logger.error(f"CRITICAL ERROR loading models: {str(e)}")
+        logger.error(traceback.format_exc())
+    finally:
+        models_loading = False
 
 # ------------------------------------
 # VIEWS
@@ -246,75 +274,124 @@ def health_check(request):
         }
     })
 
+def test_upload(request):
+    """Test endpoint to verify upload functionality"""
+    return JsonResponse({
+        "status": "ok",
+        "message": "Upload endpoint is accessible",
+        "upload_folder_exists": os.path.exists(UPLOAD_FOLDER),
+        "upload_folder_writable": os.access(UPLOAD_FOLDER, os.W_OK),
+        "summary_folder_exists": os.path.exists(SUMMARY_FOLDER),
+        "summary_folder_writable": os.access(SUMMARY_FOLDER, os.W_OK)
+    })
+
 # ------------------------------------
 # FILE UPLOAD (OPTIMIZED)
 # ------------------------------------
 @csrf_exempt
 def upload_file(request):
-    """Handle file upload with size validation"""
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=405)
-
-    if "TenderFile" not in request.FILES:
-        return JsonResponse({"error": "No file selected"}, status=400)
-
-    file = request.FILES["TenderFile"]
-    
-    # File size validation (max 5MB)
-    if file.size > 5 * 1024 * 1024:
-        return JsonResponse({
-            "error": "File too large. Maximum size is 5MB."
-        }, status=400)
-    
-    # File type validation
-    if not file.name.lower().endswith('.pdf'):
-        return JsonResponse({
-            "error": "Only PDF files are supported."
-        }, status=400)
-
-    job_id = str(uuid.uuid4())
-    pdf_path = os.path.join(UPLOAD_FOLDER, f"{job_id}.pdf")
-
+    """Handle file upload with size validation and detailed logging"""
     try:
-        with open(pdf_path, "wb+") as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
-    except Exception as e:
+        logger.info("=== UPLOAD REQUEST STARTED ===")
+        logger.info(f"Request method: {request.method}")
+        
+        if request.method != "POST":
+            logger.warning("Not a POST request")
+            return JsonResponse({"error": "POST required"}, status=405)
+
+        if "TenderFile" not in request.FILES:
+            logger.warning("No file in request")
+            return JsonResponse({"error": "No file selected"}, status=400)
+
+        file = request.FILES["TenderFile"]
+        logger.info(f"File received: {file.name}")
+        logger.info(f"File size: {file.size} bytes")
+        logger.info(f"File content type: {file.content_type}")
+        
+        # File size validation (max 5MB)
+        if file.size > 5 * 1024 * 1024:
+            logger.warning(f"File too large: {file.size} bytes")
+            return JsonResponse({
+                "error": "File too large. Maximum size is 5MB."
+            }, status=400)
+        
+        # File type validation
+        if not file.name.lower().endswith('.pdf'):
+            logger.warning(f"Invalid file type: {file.name}")
+            return JsonResponse({
+                "error": "Only PDF files are supported."
+            }, status=400)
+
+        job_id = str(uuid.uuid4())
+        pdf_path = os.path.join(UPLOAD_FOLDER, f"{job_id}.pdf")
+        logger.info(f"Job ID: {job_id}")
+        logger.info(f"PDF path: {pdf_path}")
+
+        # Save file
+        try:
+            with open(pdf_path, "wb+") as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+            logger.info(f"File saved successfully. Size: {os.path.getsize(pdf_path)} bytes")
+        except Exception as e:
+            logger.error(f"Failed to save file: {str(e)}")
+            logger.error(traceback.format_exc())
+            return JsonResponse({
+                "error": f"Failed to save file: {str(e)}"
+            }, status=500)
+
+        # Start processing in background
+        try:
+            logger.info("Starting PDF processing thread")
+            thread = threading.Thread(target=process_pdf, args=(job_id, pdf_path))
+            thread.daemon = True
+            thread.start()
+            logger.info("PDF processing thread started")
+        except Exception as e:
+            logger.error(f"Failed to start processing thread: {str(e)}")
+            logger.error(traceback.format_exc())
+            return JsonResponse({
+                "error": f"Failed to start processing: {str(e)}"
+            }, status=500)
+        
+        check_memory()
+        
         return JsonResponse({
-            "error": f"Failed to save file: {str(e)}"
+            "status": "processing",
+            "job_id": job_id
+        })
+        
+    except Exception as e:
+        logger.error(f"UNHANDLED ERROR in upload_file: {str(e)}")
+        logger.error(traceback.format_exc())
+        return JsonResponse({
+            "error": f"Server error: {str(e)}"
         }, status=500)
-
-    print(f"Uploaded File: {file.name}")
-    print(f"Saved Path: {pdf_path}")
-    print(f"File Size: {os.path.getsize(pdf_path)} bytes")
-    
-    check_memory()
-
-    # Process PDF in background thread to avoid timeout
-    thread = threading.Thread(target=process_pdf, args=(job_id, pdf_path))
-    thread.daemon = True
-    thread.start()
-    
-    return JsonResponse({
-        "status": "processing",
-        "job_id": job_id
-    })
 
 # ------------------------------------
 # PROCESS PDF (MEMORY OPTIMIZED)
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
     """Process PDF with memory optimization"""
+    result_data = {
+        "summary": "Processing started...",
+        "classification": "Processing...",
+        "compliance": "Processing..."
+    }
+    
     try:
+        logger.info(f"Starting PDF processing for job: {job_id}")
+        
         # Load models only when needed
         load_models()
         check_memory()
         
-        print(f"Processing PDF: {pdf_path}")
-        print(f"PDF Exists: {os.path.exists(pdf_path)}")
+        logger.info(f"Processing PDF: {pdf_path}")
+        logger.info(f"PDF Exists: {os.path.exists(pdf_path)}")
 
         # Convert only first page with lower DPI
         try:
+            logger.info("Converting PDF to image...")
             pages = convert_from_path(
                 pdf_path, 
                 poppler_path=POPPLER_PATH,
@@ -323,8 +400,9 @@ def process_pdf(job_id, pdf_path):
                 dpi=150,      # Lower DPI for less memory
                 fmt='jpeg'    # JPEG uses less memory
             )
+            logger.info(f"Converted {len(pages)} pages")
         except Exception as e:
-            print(f"Conversion error: {e}")
+            logger.error(f"Conversion error: {e}")
             # Fallback to default
             pages = convert_from_path(
                 pdf_path, 
@@ -339,6 +417,7 @@ def process_pdf(job_id, pdf_path):
         extracted_text = ""
         
         # Process each page
+        logger.info("Starting OCR...")
         for page in pages:
             text = pytesseract.image_to_string(
                 page,
@@ -354,35 +433,32 @@ def process_pdf(job_id, pdf_path):
         # Clean and limit text
         clean_text = re.sub(r'\s+', ' ', extracted_text).strip()
         extracted_text = clean_text[:1500]  # Reduced from 4000
+        logger.info(f"Extracted text length: {len(extracted_text)} characters")
         
         # If no text extracted, provide default
         if not extracted_text.strip():
             extracted_text = "No text could be extracted from the PDF. Please ensure the PDF contains readable text."
-
-        # Process with AI models (with error handling)
-        result_data = {
-            "summary": "",
-            "classification": "",
-            "compliance": ""
-        }
 
         # ------------------------------------
         # SUMMARY
         # ------------------------------------
         try:
             if summarizer is not None:
+                logger.info("Generating summary...")
                 summary_result = summarizer(
                     extracted_text,
-                    max_length=60,   # Reduced
-                    min_length=15,   # Reduced
+                    max_length=60,
+                    min_length=15,
                     do_sample=False,
                     truncation=True
                 )
                 result_data["summary"] = summary_result[0]["summary_text"]
+                logger.info("Summary generated successfully")
             else:
                 result_data["summary"] = "Summarizer model not available"
+                logger.warning("Summarizer model is None")
         except Exception as e:
-            print(f"Summary error: {e}")
+            logger.error(f"Summary error: {e}")
             result_data["summary"] = "Summary could not be generated"
 
         # ------------------------------------
@@ -390,6 +466,7 @@ def process_pdf(job_id, pdf_path):
         # ------------------------------------
         try:
             if classifier is not None:
+                logger.info("Generating classification...")
                 classification_result = classifier(
                     extracted_text,
                     candidate_labels=["buildings", "roads", "dams", "bridges", "water", "construction"],
@@ -399,10 +476,12 @@ def process_pdf(job_id, pdf_path):
                     f"Top Category: {classification_result['labels'][0]}\n"
                     f"Confidence: {round(classification_result['scores'][0] * 100, 2)}%"
                 )
+                logger.info("Classification generated successfully")
             else:
                 result_data["classification"] = "Classifier model not available"
+                logger.warning("Classifier model is None")
         except Exception as e:
-            print(f"Classification error: {e}")
+            logger.error(f"Classification error: {e}")
             result_data["classification"] = "Classification temporarily unavailable"
 
         # ------------------------------------
@@ -410,27 +489,31 @@ def process_pdf(job_id, pdf_path):
         # ------------------------------------
         try:
             if compliance_pipe is not None:
+                logger.info("Extracting compliance...")
                 prompt = f"Extract compliance requirements from this text. Return bullet points only if found, else say 'No compliance requirements found':\n\n{extracted_text[:800]}"
                 
                 compliance_result = compliance_pipe(
                     prompt,
-                    max_new_tokens=80,  # Reduced
+                    max_new_tokens=80,
                     do_sample=False
                 )
                 result_data["compliance"] = compliance_result[0]["generated_text"]
+                logger.info("Compliance extracted successfully")
             else:
                 result_data["compliance"] = "Compliance model not available"
+                logger.warning("Compliance model is None")
         except Exception as e:
-            print(f"Compliance error: {e}")
+            logger.error(f"Compliance error: {e}")
             result_data["compliance"] = "Compliance extraction temporarily unavailable"
 
         # Clean up models to free memory
         gc.collect()
         check_memory()
+        logger.info("PDF processing completed successfully")
 
     except Exception as e:
-        print("ERROR OCCURRED")
-        print(traceback.format_exc())
+        logger.error("ERROR OCCURRED IN PROCESS_PDF")
+        logger.error(traceback.format_exc())
         
         result_data = {
             "summary": f"Error: {str(e)}",
@@ -443,21 +526,24 @@ def process_pdf(job_id, pdf_path):
         summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
         with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(result_data, f)
-        print(f"Results saved to {summary_path}")
+        logger.info(f"Results saved to {summary_path}")
     except Exception as e:
-        print(f"Error saving results: {e}")
+        logger.error(f"Error saving results: {e}")
 
 # ------------------------------------
 # CHECK STATUS
 # ------------------------------------
 def check_summary(request, job_id):
     """Check processing status"""
+    logger.info(f"Checking status for job: {job_id}")
     summary_path = os.path.join(SUMMARY_FOLDER, f"{job_id}.txt")
 
     if os.path.exists(summary_path):
         try:
             with open(summary_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
+            
+            logger.info(f"Found results for job: {job_id}")
             
             # Check if there was an error
             if "Error" in data.get("summary", ""):
@@ -476,11 +562,13 @@ def check_summary(request, job_id):
                 "compliance": data.get("compliance", "")
             })
         except Exception as e:
+            logger.error(f"Error reading results: {e}")
             return JsonResponse({
                 "ready": False,
                 "error": f"Error reading results: {str(e)}"
             })
 
+    logger.info(f"No results found for job: {job_id}")
     return JsonResponse({
         "ready": False
     })
