@@ -197,13 +197,10 @@ def free_trail(request):
 # GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
 
-summarizer = None
-classifier = None
-compliance_pipe = None
-
-
 def load_models():
     global summarizer, classifier, compliance_pipe
+
+    from transformers import pipeline
 
     if summarizer is None:
         summarizer = pipeline(
