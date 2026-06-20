@@ -26,6 +26,8 @@ import pytesseract
 import platform
 import traceback
 import re
+# bidbuddy/tasks.py
+from celery import shared_task
 
 
 
@@ -195,14 +197,13 @@ def free_trail(request):
 # ------------------------------------
 # GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
-from transformers import pipeline
 summarizer = None
 classifier = None
 compliance_pipe = None
 
 def load_models():
     global summarizer, classifier, compliance_pipe
-
+    from transformers import pipeline
     if summarizer is None:
         summarizer = pipeline(
             "summarization",
