@@ -23,10 +23,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('bidbuddy.urls')),
     path('accounts/', include('allauth.urls')),
-    path('pay/', views.pay, name='pay'),
-path(
-    'payment-success/',
-    views.payment_success,
-    name='payment_success'
-),
 ]

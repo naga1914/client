@@ -4,6 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
 
 <link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
@@ -11,11 +12,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-6">
+<div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+    <h2 class="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-6">
             Welcome Back
         </h2>
 
@@ -33,7 +32,7 @@
                     Email
                 </label>
                 <input type="email" name="email" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                class="w-full px-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <div>
@@ -41,7 +40,7 @@
                     Password
                 </label>
                 <input type="password" name="password" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    class="w-full px-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <button type="submit"
@@ -58,7 +57,7 @@
 <div class="space-y-3">
 
     <a href="{% provider_login_url 'google' %}"
-       class="flex items-center justify-center gap-3 w-full border border-gray-300 bg-white py-3 rounded-lg hover:bg-gray-50 transition">
+    class="flex items-center justify-center gap-3 w-full border border-gray-300 bg-white py-3 px-4 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base"
         <img src="https://www.svgrepo.com/show/475656/google-color.svg"
              alt="Google" class="w-5 h-5">
         <span class="font-medium text-gray-700">
@@ -67,8 +66,7 @@
     </a>
 
 </div>
-        
-        <p class="text-sm text-center text-gray-500 mt-6">
+        <p class="text-xs sm:text-sm text-center text-gray-500 mt-6">
             Don’t have an account? <a href="{% url 'register' %}" class="text-blue-600 hover:underline">Register</a>
         </p>
 
