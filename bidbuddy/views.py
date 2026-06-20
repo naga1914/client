@@ -26,6 +26,7 @@ import pytesseract
 import platform
 import traceback
 import re
+from .tasks import process_pdf_task
 
 
 
@@ -195,6 +196,9 @@ def free_trail(request):
 # ------------------------------------
 # GLOBAL MODELS (LOAD ONCE)
 # ------------------------------------
+summarizer = None
+classifier = None
+compliance_pipe = None
 
 def load_models():
     global summarizer, classifier, compliance_pipe
@@ -243,12 +247,8 @@ def upload_file(request):
     print("Uploaded File:", file.name)
     print("Saved Path:", pdf_path)
 
-    thread = threading.Thread(
-        target=process_pdf,
-        args=(job_id, pdf_path)
-    )
-    thread.start()
 
+    process_pdf_task.delay(job_id, pdf_path)
     return JsonResponse({
         "status": "processing",
         "job_id": job_id
@@ -259,6 +259,7 @@ def upload_file(request):
 # PROCESS PDF
 # ------------------------------------
 def process_pdf(job_id, pdf_path):
+    load_models() 
 
     try:
         print("PDF Exists:", os.path.exists(pdf_path))
