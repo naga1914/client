@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: your-app-name
+    env: python
+    buildCommand: |
+      apt-get update
+      apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-eng
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn your_project.wsgi:application --workers=2 --threads=2 --timeout=120 --max-requests=10
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: DJANGO_SETTINGS_MODULE
+        value: your_project.settings
+      - key: PYTHONUNBUFFERED
+        value: "true"
+    healthCheckPath: /health
+    plan: starter

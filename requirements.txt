@@ -20,3 +20,4 @@ accelerate
 sentencepiece
 celery  
 redis 
+psutil
