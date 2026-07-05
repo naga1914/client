@@ -13,5 +13,4 @@ urlpatterns = [
     path('pay/', views.pay, name='pay'),
     path('payment-success/', views.payment_success, name='payment_success'),
     path('upload/', views.upload_file, name='upload_file'),
-    path('check_summary/<str:job_id>/', views.check_summary, name='check_summary'),
 ]

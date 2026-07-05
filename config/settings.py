@@ -168,3 +168,7 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+import os
+
+HF_API_KEY = os.getenv("HF_API_KEY")

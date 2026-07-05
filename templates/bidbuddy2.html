@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% load static %}
 
-<link rel="icon" type="image/png" href="{% static 'images/logo.jpeg' %}">
+<link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
 
 <title>compass4Tender2Contract - Trial Version</title>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -230,7 +230,7 @@ h1 {
     <form id="uploadForm" enctype="multipart/form-data">
             {% csrf_token %}
 
-        <input type="file" name="TenderFile" required>
+        <input type="file" name="document" required>
 
         <br><br>
 
