@@ -21,10 +21,9 @@
 <body>
     {% load static %}
     <nav class="bg-white fixed w-full z-20 top-0 border-b border-gray-200">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-
+        <div class="w-full flex flex-wrap items-center justify-between px-8 p-4">
             <a href="#" class="flex items-center space-x-3">
-    <img src="{% static 'images/logo.png' %}" class="h-12" alt="Logo">
+    <img src="{% static 'images/logo.png' %}" class="h-20" alt="Logo">
 
     <div class="flex flex-col">
         <span class="text-2xl font-semibold whitespace-nowrap">
@@ -183,9 +182,134 @@
             Strategic Solutions
       </h2>
 
-      <p class="text-lg text-gray-600 max-w-6xl mx-auto leading-relaxed">
-        SEOM Projects & Engineering Services provide  end to end support for project management and commercial advisory services for tendering, contract management, claims and project execution
-      </p>
+       <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <!-- Heading -->
+        <div class="text-center mb-14">
+            <h2 class="text-4xl md:text-2xl font-bold text-gray-900">
+                AI-Powered Project & Commercial Advisory
+            </h2>
+
+            <p class="mt-6 text-lg text-gray-600 max-w-5xl mx-auto leading-relaxed">
+                SEOM Projects &amp; Engineering Services LLP integrates Artificial Intelligence
+                into Project &amp; Commercial Advisory services to support large-scale
+                Infrastructure, Construction, Oil &amp; Gas, Power, and Renewable Energy
+                projects throughout the project lifecycle.
+            </p>
+        </div>
+
+        <!-- Cards -->
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- Card 1 -->
+            <div class="bg-slate-50 rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
+
+                <div class="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-3xl mb-6">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-gray-900 mb-5">
+                    AI-Driven Tender Document Intelligence &amp; Contract Administration
+                </h3>
+
+                <ul class="space-y-4 text-gray-600 leading-7 list-disc pl-5">
+                    <li>
+                        <strong>Automated Clause Analysis:</strong>
+                        AI scans complex EPC (Engineering, Procurement &amp; Construction)
+                        contracts to identify hidden risks, compliance obligations,
+                        and critical project milestones.
+                    </li>
+
+                    <li>
+                        <strong>Risk Mitigation:</strong>
+                        Detects unfavorable clauses and deviations from industry standards
+                        before contract execution, helping protect project margins in
+                        Renewable Energy and Oil &amp; Gas projects.
+                    </li>
+                </ul>
+
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-slate-50 rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
+
+                <div class="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center text-green-600 text-3xl mb-6">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-gray-900 mb-5">
+                    Claims Management &amp; Delay Analysis
+                </h3>
+
+                <ul class="space-y-4 text-gray-600 leading-7 list-disc pl-5">
+                    <li>
+                        <strong>Predictive Impact Assessment:</strong>
+                        AI evaluates project delays, schedule disruptions,
+                        and quantifies their impact on capital productivity.
+                    </li>
+
+                    <li>
+                        <strong>Evidence Compilation:</strong>
+                        Organizes project documents including progress reports,
+                        supply-chain records, and site logs to support robust claims
+                        or defend against liquidated damages.
+                    </li>
+                </ul>
+
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-slate-50 rounded-2xl border border-gray-200 p-8 hover:shadow-lg transition duration-300">
+
+                <div class="w-16 h-16 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 text-3xl mb-6">
+                    <i class="fas fa-gavel"></i>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-gray-900 mb-5">
+                    Dispute Resolution
+                </h3>
+
+                <ul class="space-y-4 text-gray-600 leading-7 list-disc pl-5">
+                    <li>
+                        <strong>Precedent &amp; Case Matching:</strong>
+                        AI cross-references contractual disputes with historical cases,
+                        industry precedents, and regulatory standards.
+                    </li>
+
+                    <li>
+                        <strong>Objective Advisory:</strong>
+                        Provides boards and executive leadership with data-driven
+                        strategies to resolve disputes efficiently while minimizing
+                        costly litigation.
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="mt-16 bg-blue-50 border-l-4 border-blue-600 rounded-xl p-8">
+
+            <h3 class="text-2xl font-semibold text-gray-900 mb-4">
+                Technology-Driven Advisory
+            </h3>
+
+            <p class="text-gray-700 leading-8 text-lg">
+                By combining AI-powered digital innovation with the founders' extensive
+                technical expertise spanning decades of experience with global organizations
+                such as <strong>Saipem</strong>, <strong>Wood</strong>,
+                <strong>KBR</strong>, and <strong>DRDO</strong>, SEOM replaces
+                conventional consulting assumptions with precise, technology-driven
+                oversight that safeguards high-value Energy and Infrastructure
+                investments.
+            </p>
+
+        </div>
+
+    </div>
+</section>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -1419,7 +1543,7 @@ Trained in accreditation and quality systems by National accreditation board of 
 <div class="text-center">
 
     <img
-        src="{% static 'images/home_background.png' %}"
+        src="{% static 'images/logo.png' %}"
         alt="Contact Us"
         class="w-80 h-80 mx-auto mb-6"
     >
